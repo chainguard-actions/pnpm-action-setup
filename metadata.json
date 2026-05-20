@@ -1,8 +1,0 @@
-{
-  "owner": "pnpm",
-  "name": "action-setup",
-  "alias": "pnpm-action-setup",
-  "visibility": "internal",
-  "description": "Install pnpm package manager",
-  "block_publish": false
-}
