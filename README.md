@@ -8,7 +8,7 @@ Hardened by [Chainguard](https://www.chainguard.dev) from the upstream action at
 
 | Version | Tag | Upstream commit |
 |---------|-----|-----------------|
-| v4.4.0 | [`v4.4.0`](https://github.com/chainguard-actions/pnpm--action-setup/tree/v4.4.0) | — |
+| v4.4.0 | [`v4.4.0`](https://github.com/chainguard-actions/pnpm-action-setup/tree/v4.4.0) | — |
 
 ## Privacy
 
