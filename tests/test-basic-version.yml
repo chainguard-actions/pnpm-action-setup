@@ -1,0 +1,57 @@
+name: Test basic pnpm setup with explicit version
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - id: action
+        uses: .
+        with:
+          version: '9.0.0'
+
+      - name: Assert dest output is set
+        env:
+          DEST: ${{ steps.action.outputs.dest }}
+        run: |
+          echo "dest: $DEST"
+          if [ -z "$DEST" ]; then
+            echo "FAIL: expected dest output to be non-empty"
+            exit 1
+          fi
+          echo "PASS: dest=$DEST"
+
+      - name: Assert bin_dest output is set
+        env:
+          BIN_DEST: ${{ steps.action.outputs.bin_dest }}
+        run: |
+          echo "bin_dest: $BIN_DEST"
+          if [ -z "$BIN_DEST" ]; then
+            echo "FAIL: expected bin_dest output to be non-empty"
+            exit 1
+          fi
+          echo "PASS: bin_dest=$BIN_DEST"
+
+      - name: Assert pnpm is installed and correct version
+        run: |
+          echo "pnpm version: $(pnpm --version)"
+          PNPM_VERSION="$(pnpm --version)"
+          if [ "$PNPM_VERSION" != "9.0.0" ]; then
+            echo "FAIL: expected pnpm version 9.0.0 but got $PNPM_VERSION"
+            exit 1
+          fi
+          echo "PASS: pnpm version is 9.0.0"
+
+      - name: Assert pnpm binary exists in bin_dest
+        env:
+          BIN_DEST: ${{ steps.action.outputs.bin_dest }}
+        run: |
+          echo "Checking for pnpm in $BIN_DEST"
+          if [ ! -f "$BIN_DEST/pnpm" ] && [ ! -L "$BIN_DEST/pnpm" ]; then
+            echo "FAIL: pnpm binary not found in $BIN_DEST"
+            exit 1
+          fi
+          echo "PASS: pnpm binary found in $BIN_DEST"

@@ -1,0 +1,51 @@
+name: Test pnpm setup with run_install
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - id: action
+        uses: .
+        with:
+          version: '9.0.0'
+          run_install: |
+            - cwd: tests/fixtures/node-project
+              args: [--no-frozen-lockfile]
+
+      - name: Assert pnpm is installed
+        run: |
+          echo "pnpm version: $(pnpm --version)"
+          PNPM_VERSION="$(pnpm --version)"
+          if [ -z "$PNPM_VERSION" ]; then
+            echo "FAIL: pnpm not installed"
+            exit 1
+          fi
+          echo "PASS: pnpm is installed, version=$PNPM_VERSION"
+
+      - name: Assert dest output is set
+        env:
+          DEST: ${{ steps.action.outputs.dest }}
+        run: |
+          echo "dest: $DEST"
+          if [ -z "$DEST" ]; then
+            echo "FAIL: expected dest output to be non-empty"
+            exit 1
+          fi
+          echo "PASS"
+
+      - name: Assert pnpm install ran in fixture directory
+        run: |
+          # pnpm install should have created node_modules or pnpm-lock.yaml
+          FIXTURE_DIR="$GITHUB_WORKSPACE/tests/fixtures/node-project"
+          echo "Checking fixture dir: $FIXTURE_DIR"
+          ls -la "$FIXTURE_DIR"
+          if [ -d "$FIXTURE_DIR/node_modules" ] || [ -f "$FIXTURE_DIR/pnpm-lock.yaml" ]; then
+            echo "PASS: pnpm install ran successfully (node_modules or pnpm-lock.yaml found)"
+          else
+            echo "FAIL: neither node_modules nor pnpm-lock.yaml found after pnpm install"
+            exit 1
+          fi

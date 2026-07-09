@@ -1,0 +1,45 @@
+name: Test pnpm setup from package.json packageManager field
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - id: action
+        uses: .
+        with:
+          package_json_file: 'tests/fixtures/pkg/package.json'
+
+      - name: Assert pnpm is installed
+        run: |
+          echo "pnpm version: $(pnpm --version)"
+          PNPM_VERSION="$(pnpm --version)"
+          if [ -z "$PNPM_VERSION" ]; then
+            echo "FAIL: pnpm not installed"
+            exit 1
+          fi
+          echo "PASS: pnpm is installed, version=$PNPM_VERSION"
+
+      - name: Assert pnpm version matches packageManager field
+        run: |
+          PNPM_VERSION="$(pnpm --version)"
+          echo "pnpm version: $PNPM_VERSION"
+          if [ "$PNPM_VERSION" != "8.15.0" ]; then
+            echo "FAIL: expected pnpm version 8.15.0 but got $PNPM_VERSION"
+            exit 1
+          fi
+          echo "PASS: pnpm version matches packageManager field"
+
+      - name: Assert dest output is set
+        env:
+          DEST: ${{ steps.action.outputs.dest }}
+        run: |
+          echo "dest: $DEST"
+          if [ -z "$DEST" ]; then
+            echo "FAIL: expected dest output to be non-empty"
+            exit 1
+          fi
+          echo "PASS"
