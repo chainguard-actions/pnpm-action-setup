@@ -4,15 +4,12 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-
       - id: action
         uses: .
         with:
-          package_json_file: 'tests/fixtures/pkg/package.json'
-
+          package_json_file: tests/fixtures/pkg/package.json
       - name: Assert pnpm is installed
         run: |
           echo "pnpm version: $(pnpm --version)"
@@ -21,18 +18,16 @@ jobs:
             echo "FAIL: pnpm not installed"
             exit 1
           fi
-          echo "PASS: pnpm is installed, version=$PNPM_VERSION"
-
+          echo "PASS: pnpm $PNPM_VERSION installed"
       - name: Assert pnpm version matches packageManager field
         run: |
           PNPM_VERSION="$(pnpm --version)"
           echo "pnpm version: $PNPM_VERSION"
-          if [ "$PNPM_VERSION" != "8.15.0" ]; then
-            echo "FAIL: expected pnpm version 8.15.0 but got $PNPM_VERSION"
+          if [ "$PNPM_VERSION" != "9.1.0" ]; then
+            echo "FAIL: expected pnpm version 9.1.0 (from packageManager field) but got $PNPM_VERSION"
             exit 1
           fi
-          echo "PASS: pnpm version matches packageManager field"
-
+          echo "PASS: pnpm $PNPM_VERSION matches packageManager field"
       - name: Assert dest output is set
         env:
           DEST: ${{ steps.action.outputs.dest }}
@@ -40,6 +35,16 @@ jobs:
           echo "dest: $DEST"
           if [ -z "$DEST" ]; then
             echo "FAIL: expected dest output to be non-empty"
+            exit 1
+          fi
+          echo "PASS"
+      - name: Assert bin_dest output is set
+        env:
+          BIN_DEST: ${{ steps.action.outputs.bin_dest }}
+        run: |
+          echo "bin_dest: $BIN_DEST"
+          if [ -z "$BIN_DEST" ]; then
+            echo "FAIL: expected bin_dest output to be non-empty"
             exit 1
           fi
           echo "PASS"
