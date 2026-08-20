@@ -1,4 +1,4 @@
-name: Test basic pnpm setup with explicit version
+name: Test pnpm setup with custom dest directory
 on:
   workflow_dispatch:
 jobs:
@@ -11,8 +11,9 @@ jobs:
         uses: .
         with:
           version: 9.15.4
+          dest: ~/custom-pnpm-dest
 
-      - name: Assert dest output is set
+      - name: Assert dest output reflects custom path
         env:
           DEST: ${{ steps.action.outputs.dest }}
         run: |
@@ -21,7 +22,13 @@ jobs:
             echo "FAIL: dest output is empty"
             exit 1
           fi
-          echo "PASS: dest=$DEST"
+          # The dest should contain "custom-pnpm-dest" (tilde expanded)
+          if echo "$DEST" | grep -q "custom-pnpm-dest"; then
+            echo "PASS: dest contains custom-pnpm-dest: $DEST"
+          else
+            echo "FAIL: dest '$DEST' does not contain 'custom-pnpm-dest'"
+            exit 1
+          fi
 
       - name: Assert bin_dest output is set
         env:

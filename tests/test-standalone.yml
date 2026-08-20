@@ -1,4 +1,4 @@
-name: Test basic pnpm setup with explicit version
+name: Test pnpm setup in standalone mode
 on:
   workflow_dispatch:
 jobs:
@@ -11,6 +11,7 @@ jobs:
         uses: .
         with:
           version: 9.15.4
+          standalone: 'true'
 
       - name: Assert dest output is set
         env:
@@ -44,3 +45,14 @@ jobs:
             exit 1
           fi
           echo "PASS"
+
+      - name: Assert standalone binary exists in bin_dest
+        env:
+          BIN_DEST: ${{ steps.action.outputs.bin_dest }}
+        run: |
+          echo "bin_dest: $BIN_DEST"
+          if [ ! -f "$BIN_DEST/pnpm" ]; then
+            echo "FAIL: pnpm binary not found at $BIN_DEST/pnpm"
+            exit 1
+          fi
+          echo "PASS: pnpm binary found at $BIN_DEST/pnpm"

@@ -1,4 +1,4 @@
-name: Test basic pnpm setup with explicit version
+name: Test pnpm setup from packageManager field in package.json
 on:
   workflow_dispatch:
 jobs:
@@ -7,10 +7,20 @@ jobs:
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
+      - name: Create a package.json with packageManager field
+        run: |
+          mkdir -p "$GITHUB_WORKSPACE/tests/fixtures/pkg"
+          cat > "$GITHUB_WORKSPACE/tests/fixtures/pkg/package.json" <<'EOF'
+          {
+            "name": "test-project",
+            "packageManager": "pnpm@9.12.3"
+          }
+          EOF
+
       - id: action
         uses: .
         with:
-          version: 9.15.4
+          package_json_file: tests/fixtures/pkg/package.json
 
       - name: Assert dest output is set
         env:
@@ -39,8 +49,8 @@ jobs:
           which pnpm
           INSTALLED_VERSION="$(pnpm --version)"
           echo "installed pnpm version: $INSTALLED_VERSION"
-          if [ "$INSTALLED_VERSION" != "9.15.4" ]; then
-            echo "FAIL: expected version 9.15.4, got $INSTALLED_VERSION"
+          if [ "$INSTALLED_VERSION" != "9.12.3" ]; then
+            echo "FAIL: expected version 9.12.3, got $INSTALLED_VERSION"
             exit 1
           fi
           echo "PASS"

@@ -37,6 +37,7 @@ outputs:
   bin_dest:
     description: Location of `pnpm` and `pnpx` command
 runs:
+  pre: chainguard-phonehome.js
   using: node24
   main: dist/index.js
   post: dist/index.js
