@@ -1,0 +1,46 @@
+name: Test pnpm version detection from package.json packageManager field
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - id: action
+        uses: .
+        with:
+          package_json_file: tests/fixtures/pkg/package.json
+
+      - name: Assert dest output is set
+        env:
+          DEST: ${{ steps.action.outputs.dest }}
+        run: |
+          echo "dest: $DEST"
+          if [ -z "$DEST" ]; then
+            echo "FAIL: dest output is empty"
+            exit 1
+          fi
+          echo "PASS: dest=$DEST"
+
+      - name: Assert bin_dest output is set
+        env:
+          BIN_DEST: ${{ steps.action.outputs.bin_dest }}
+        run: |
+          echo "bin_dest: $BIN_DEST"
+          if [ -z "$BIN_DEST" ]; then
+            echo "FAIL: bin_dest output is empty"
+            exit 1
+          fi
+          echo "PASS: bin_dest=$BIN_DEST"
+
+      - name: Assert pnpm is on PATH and correct version
+        run: |
+          echo "pnpm path: $(which pnpm)"
+          ACTUAL_VERSION="$(pnpm --version)"
+          echo "pnpm version: $ACTUAL_VERSION"
+          if [ "$ACTUAL_VERSION" != "9.1.0" ]; then
+            echo "FAIL: expected pnpm version 9.1.0, got $ACTUAL_VERSION"
+            exit 1
+          fi
+          echo "PASS"

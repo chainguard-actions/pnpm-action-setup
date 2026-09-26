@@ -1,0 +1,48 @@
+name: Test pnpm setup with run_install enabled
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Create a minimal package.json for install
+        run: |
+          cat > "$GITHUB_WORKSPACE/package.json" <<'EOF'
+          {
+            "name": "test-install-project",
+            "version": "1.0.0",
+            "dependencies": {}
+          }
+          EOF
+
+      - id: action
+        uses: .
+        with:
+          version: 9.15.4
+          run_install: |
+            - recursive: true
+              args: ["--no-frozen-lockfile"]
+
+      - name: Assert dest output is set
+        env:
+          DEST: ${{ steps.action.outputs.dest }}
+        run: |
+          echo "dest: $DEST"
+          if [ -z "$DEST" ]; then
+            echo "FAIL: dest output is empty"
+            exit 1
+          fi
+          echo "PASS: dest=$DEST"
+
+      - name: Assert pnpm is on PATH and correct version
+        run: |
+          echo "pnpm path: $(which pnpm)"
+          ACTUAL_VERSION="$(pnpm --version)"
+          echo "pnpm version: $ACTUAL_VERSION"
+          if [ "$ACTUAL_VERSION" != "9.15.4" ]; then
+            echo "FAIL: expected pnpm version 9.15.4, got $ACTUAL_VERSION"
+            exit 1
+          fi
+          echo "PASS"

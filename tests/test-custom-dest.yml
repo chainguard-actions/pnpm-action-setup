@@ -1,0 +1,63 @@
+name: Test pnpm installation with custom dest directory
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - id: action
+        uses: .
+        with:
+          version: 9.15.4
+          dest: ~/my-custom-pnpm-dir
+
+      - name: Assert dest output reflects custom path
+        env:
+          DEST: ${{ steps.action.outputs.dest }}
+        run: |
+          echo "dest: $DEST"
+          if [ -z "$DEST" ]; then
+            echo "FAIL: dest output is empty"
+            exit 1
+          fi
+          # The dest should be the expanded form of ~/my-custom-pnpm-dir
+          if ! echo "$DEST" | grep -q "my-custom-pnpm-dir"; then
+            echo "FAIL: dest '$DEST' does not contain 'my-custom-pnpm-dir'"
+            exit 1
+          fi
+          echo "PASS: dest=$DEST"
+
+      - name: Assert bin_dest output is set
+        env:
+          BIN_DEST: ${{ steps.action.outputs.bin_dest }}
+        run: |
+          echo "bin_dest: $BIN_DEST"
+          if [ -z "$BIN_DEST" ]; then
+            echo "FAIL: bin_dest output is empty"
+            exit 1
+          fi
+          echo "PASS: bin_dest=$BIN_DEST"
+
+      - name: Assert pnpm is on PATH and correct version
+        run: |
+          echo "pnpm path: $(which pnpm)"
+          ACTUAL_VERSION="$(pnpm --version)"
+          echo "pnpm version: $ACTUAL_VERSION"
+          if [ "$ACTUAL_VERSION" != "9.15.4" ]; then
+            echo "FAIL: expected pnpm version 9.15.4, got $ACTUAL_VERSION"
+            exit 1
+          fi
+          echo "PASS"
+
+      - name: Assert custom dest directory exists
+        env:
+          DEST: ${{ steps.action.outputs.dest }}
+        run: |
+          echo "Checking dest directory: $DEST"
+          if [ ! -d "$DEST" ]; then
+            echo "FAIL: dest directory '$DEST' does not exist"
+            exit 1
+          fi
+          echo "PASS: dest directory exists"
