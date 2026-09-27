@@ -1,0 +1,58 @@
+name: Test pnpm installation with custom destination
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Ensure npm v7+ is available
+        run: |
+          echo "npm version: $(npm --version 2>/dev/null || echo 'not found')"
+          npm install -g npm@latest 2>/dev/null || sudo npm install -g npm@latest 2>/dev/null || true
+          echo "npm version after update: $(npm --version 2>/dev/null || echo 'not found')"
+
+      - id: action
+        uses: .
+        with:
+          version: 12.3.4
+          dest: ~/custom-pnpm-dest
+
+      - name: Assert dest output matches custom path
+        env:
+          DEST: ${{ steps.action.outputs.dest }}
+        run: |
+          echo "dest: $DEST"
+          if [ -z "$DEST" ]; then
+            echo "FAIL: dest output is empty"
+            exit 1
+          fi
+          # The dest should be the expanded form of ~/custom-pnpm-dest
+          if [[ "$DEST" != *"custom-pnpm-dest"* ]]; then
+            echo "FAIL: expected dest to contain 'custom-pnpm-dest', got '$DEST'"
+            exit 1
+          fi
+          echo "PASS: dest output is '$DEST'"
+
+      - name: Assert bin_dest output is set
+        env:
+          BIN_DEST: ${{ steps.action.outputs.bin_dest }}
+        run: |
+          echo "bin_dest: $BIN_DEST"
+          if [ -z "$BIN_DEST" ]; then
+            echo "FAIL: bin_dest output is empty"
+            exit 1
+          fi
+          echo "PASS: bin_dest output is '$BIN_DEST'"
+
+      - name: Assert pnpm is installed and functional
+        run: |
+          which pnpm || { echo "FAIL: pnpm not found on PATH"; exit 1; }
+          INSTALLED_VERSION=$(pnpm --version)
+          echo "Installed pnpm version: $INSTALLED_VERSION"
+          if [ "$INSTALLED_VERSION" != "12.3.4" ]; then
+            echo "FAIL: expected version 12.3.4, got $INSTALLED_VERSION"
+            exit 1
+          fi
+          echo "PASS: pnpm $INSTALLED_VERSION installed to custom dest"
