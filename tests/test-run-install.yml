@@ -1,0 +1,46 @@
+name: Test pnpm setup with run_install
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Create minimal package.json and pnpm-lock.yaml for install
+        run: |
+          mkdir -p "$GITHUB_WORKSPACE/tests/fixtures/install-test"
+          cat > "$GITHUB_WORKSPACE/tests/fixtures/install-test/package.json" <<'EOF'
+          {
+            "name": "install-test",
+            "version": "1.0.0",
+            "dependencies": {}
+          }
+          EOF
+          # Create an empty lockfile so pnpm install can proceed
+          touch "$GITHUB_WORKSPACE/tests/fixtures/install-test/pnpm-lock.yaml"
+      - id: action
+        uses: .
+        with:
+          version: 9.0.0
+          run_install: |
+            - cwd: tests/fixtures/install-test
+              args: [--frozen-lockfile, --ignore-scripts]
+      - name: Assert dest output is set
+        env:
+          DEST: ${{ steps.action.outputs.dest }}
+        run: |
+          echo "dest: $DEST"
+          if [ -z "$DEST" ]; then
+            echo "FAIL: dest output is empty"
+            exit 1
+          fi
+          echo "PASS: dest=$DEST"
+      - name: Assert pnpm is installed
+        run: |
+          echo "pnpm version: $(pnpm --version)"
+          INSTALLED=$(pnpm --version)
+          if [ "$INSTALLED" != "9.0.0" ]; then
+            echo "FAIL: expected pnpm 9.0.0 but got $INSTALLED"
+            exit 1
+          fi
+          echo "PASS"
