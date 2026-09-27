@@ -1,0 +1,47 @@
+name: Test pnpm standalone installation (bundled Node.js)
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - id: action
+        uses: .
+        with:
+          version: '9.0.0'
+          standalone: 'true'
+
+      - name: Assert dest output is set
+        env:
+          DEST: ${{ steps.action.outputs.dest }}
+        run: |
+          echo "dest: $DEST"
+          if [ -z "$DEST" ]; then
+            echo "FAIL: dest output is empty"
+            exit 1
+          fi
+          echo "PASS: dest=$DEST"
+
+      - name: Assert bin_dest output is set
+        env:
+          BIN_DEST: ${{ steps.action.outputs.bin_dest }}
+        run: |
+          echo "bin_dest: $BIN_DEST"
+          if [ -z "$BIN_DEST" ]; then
+            echo "FAIL: bin_dest output is empty"
+            exit 1
+          fi
+          echo "PASS: bin_dest=$BIN_DEST"
+
+      - name: Assert pnpm is installed and correct version
+        run: |
+          which pnpm
+          INSTALLED_VERSION=$(pnpm --version)
+          echo "installed pnpm version: $INSTALLED_VERSION"
+          if [ "$INSTALLED_VERSION" != "9.0.0" ]; then
+            echo "FAIL: expected pnpm version 9.0.0 but got $INSTALLED_VERSION"
+            exit 1
+          fi
+          echo "PASS: pnpm $INSTALLED_VERSION installed in standalone mode"
