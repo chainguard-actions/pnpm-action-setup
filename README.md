@@ -11,6 +11,7 @@ Hardened by [Chainguard](https://www.chainguard.dev) from the upstream action at
 | v4.2.0 | [`v4.2.0`](https://github.com/chainguard-actions/pnpm-action-setup/tree/v4.2.0) | [`41ff726`](https://github.com/pnpm/action-setup/commit/41ff72655975bd51cab0327fa583b6e92b6d3061) |
 | v4.3.0 | [`v4.3.0`](https://github.com/chainguard-actions/pnpm-action-setup/tree/v4.3.0) | [`b906aff`](https://github.com/pnpm/action-setup/commit/b906affcce14559ad1aafd4ab0e942779e9f58b1) |
 | v4.4.0 | [`v4.4.0`](https://github.com/chainguard-actions/pnpm-action-setup/tree/v4.4.0) | [`fc06bc1`](https://github.com/pnpm/action-setup/commit/fc06bc1257f339d1d5d8b3a19a8cae5388b55320) |
+| v6.0.8 | [`v6.0.8`](https://github.com/chainguard-actions/pnpm-action-setup/tree/v6.0.8) | [`0e279bb`](https://github.com/pnpm/action-setup/commit/0e279bb959325dab635dd2c09392533439d90093) |
 | v6.0.9 | [`v6.0.9`](https://github.com/chainguard-actions/pnpm-action-setup/tree/v6.0.9) | [`0ebf471`](https://github.com/pnpm/action-setup/commit/0ebf47130e4866e96fce0953f49152a61190b271) |
 | v6.1.0 | [`v6.1.0`](https://github.com/chainguard-actions/pnpm-action-setup/tree/v6.1.0) | [`ea17c68`](https://github.com/pnpm/action-setup/commit/ea17c68df8912ef543352723c149a84f56e3d413) |
 
