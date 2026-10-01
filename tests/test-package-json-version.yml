@@ -1,0 +1,29 @@
+name: Test pnpm setup via packageManager field in package.json
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: action
+        uses: .
+        with:
+          package_json_file: tests/fixtures/pkg/package.json
+      - name: Assert pnpm is installed
+        run: |
+          echo "Checking pnpm is available..."
+          if ! which pnpm; then
+            echo "FAIL: pnpm not found on PATH"
+            exit 1
+          fi
+          echo "PASS: pnpm is on PATH"
+      - name: Assert pnpm version matches packageManager field
+        run: |
+          INSTALLED="$(pnpm --version)"
+          echo "installed version: $INSTALLED"
+          if [ "$INSTALLED" != "8.15.4" ]; then
+            echo "FAIL: expected version 8.15.4 but got $INSTALLED"
+            exit 1
+          fi
+          echo "PASS: pnpm version matches packageManager field"
