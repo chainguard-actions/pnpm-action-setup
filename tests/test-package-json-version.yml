@@ -1,0 +1,34 @@
+name: Test pnpm setup with version from package.json
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - id: action
+        uses: .
+        with:
+          package_json_file: tests/fixtures/package-manager/package.json
+
+      - name: Assert dest output is set
+        env:
+          DEST: ${{ steps.action.outputs.dest }}
+        run: |
+          echo "dest: $DEST"
+          if [ -z "$DEST" ]; then
+            echo "FAIL: expected dest output to be set"
+            exit 1
+          fi
+          echo "PASS: dest=$DEST"
+
+      - name: Assert pnpm is available and correct version
+        run: |
+          echo "pnpm version: $(pnpm --version)"
+          ACTUAL_VERSION="$(pnpm --version)"
+          if [ "$ACTUAL_VERSION" != "8.15.0" ]; then
+            echo "FAIL: expected pnpm version 8.15.0 but got $ACTUAL_VERSION"
+            exit 1
+          fi
+          echo "PASS: pnpm version is 8.15.0"

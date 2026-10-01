@@ -1,0 +1,52 @@
+name: Test pnpm setup with custom dest directory
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - id: action
+        uses: .
+        with:
+          version: '9.0.0'
+          dest: ~/my-custom-pnpm-dir
+
+      - name: Assert dest output matches custom path
+        env:
+          DEST: ${{ steps.action.outputs.dest }}
+        run: |
+          echo "dest: $DEST"
+          if [ -z "$DEST" ]; then
+            echo "FAIL: expected dest output to be set"
+            exit 1
+          fi
+          # Check that the dest contains our custom directory name
+          if echo "$DEST" | grep -q "my-custom-pnpm-dir"; then
+            echo "PASS: dest contains custom directory name"
+          else
+            echo "FAIL: expected dest to contain 'my-custom-pnpm-dir', got: $DEST"
+            exit 1
+          fi
+
+      - name: Assert bin_dest output is set
+        env:
+          BIN_DEST: ${{ steps.action.outputs.bin_dest }}
+        run: |
+          echo "bin_dest: $BIN_DEST"
+          if [ -z "$BIN_DEST" ]; then
+            echo "FAIL: expected bin_dest output to be set"
+            exit 1
+          fi
+          echo "PASS: bin_dest=$BIN_DEST"
+
+      - name: Assert pnpm is available
+        run: |
+          echo "pnpm version: $(pnpm --version)"
+          ACTUAL_VERSION="$(pnpm --version)"
+          if [ -z "$ACTUAL_VERSION" ]; then
+            echo "FAIL: pnpm version is empty"
+            exit 1
+          fi
+          echo "PASS: pnpm is available, version=$ACTUAL_VERSION"
