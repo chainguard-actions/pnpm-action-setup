@@ -1,0 +1,35 @@
+name: Test pnpm setup with custom dest directory
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: action
+        uses: .
+        with:
+          version: 9.0.0
+          dest: ~/custom-pnpm-dest
+      - name: Assert pnpm is installed
+        run: |
+          echo "Checking pnpm is available..."
+          which pnpm
+          PNPM_VERSION=$(pnpm --version)
+          echo "pnpm version: $PNPM_VERSION"
+          if [ -z "$PNPM_VERSION" ]; then
+            echo "FAIL: pnpm version is empty"
+            exit 1
+          fi
+          echo "PASS: pnpm is installed with version $PNPM_VERSION"
+      - name: Assert custom dest directory exists
+        run: |
+          DEST_DIR="$HOME/custom-pnpm-dest"
+          echo "Checking custom dest directory: $DEST_DIR"
+          if [ ! -d "$DEST_DIR" ]; then
+            echo "FAIL: custom dest directory $DEST_DIR does not exist"
+            exit 1
+          fi
+          echo "Contents of $DEST_DIR:"
+          ls -la "$DEST_DIR"
+          echo "PASS: custom dest directory exists"

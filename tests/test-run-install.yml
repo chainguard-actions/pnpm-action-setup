@@ -1,0 +1,45 @@
+name: Test pnpm setup with run_install
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Create package.json for install
+        run: |
+          cat > "$GITHUB_WORKSPACE/package.json" <<'EOF'
+          {
+            "name": "test-project",
+            "version": "1.0.0",
+            "dependencies": {
+              "is-odd": "3.0.1"
+            }
+          }
+          EOF
+          echo "Created package.json:"
+          cat "$GITHUB_WORKSPACE/package.json"
+      - id: action
+        uses: .
+        with:
+          version: 9.0.0
+          run_install: |
+            - recursive: true
+              args: [--no-frozen-lockfile]
+      - name: Assert pnpm is installed
+        run: |
+          PNPM_VERSION=$(pnpm --version)
+          echo "pnpm version: $PNPM_VERSION"
+          if [ -z "$PNPM_VERSION" ]; then
+            echo "FAIL: pnpm version is empty"
+            exit 1
+          fi
+          echo "PASS: pnpm is installed"
+      - name: Assert node_modules were created
+        run: |
+          echo "Checking node_modules..."
+          if [ ! -d "$GITHUB_WORKSPACE/node_modules" ]; then
+            echo "FAIL: node_modules directory not found"
+            exit 1
+          fi
+          echo "PASS: node_modules directory exists"

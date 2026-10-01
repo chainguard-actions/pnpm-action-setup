@@ -1,20 +1,157 @@
-# pnpm/action-setup
+# Setup pnpm
 
-Install pnpm package manager
+Install pnpm package manager.
 
-Hardened by [Chainguard](https://www.chainguard.dev) from the upstream action at [https://github.com/pnpm/action-setup](https://github.com/pnpm/action-setup).
+## Inputs
 
-## Versions
+### `version`
 
-| Version | Tag | Upstream commit |
-|---------|-----|-----------------|
-| v4.2.0 | [`v4.2.0`](https://github.com/chainguard-actions/pnpm-action-setup/tree/v4.2.0) | [`41ff726`](https://github.com/pnpm/action-setup/commit/41ff72655975bd51cab0327fa583b6e92b6d3061) |
-| v4.3.0 | [`v4.3.0`](https://github.com/chainguard-actions/pnpm-action-setup/tree/v4.3.0) | [`b906aff`](https://github.com/pnpm/action-setup/commit/b906affcce14559ad1aafd4ab0e942779e9f58b1) |
-| v4.4.0 | [`v4.4.0`](https://github.com/chainguard-actions/pnpm-action-setup/tree/v4.4.0) | [`fc06bc1`](https://github.com/pnpm/action-setup/commit/fc06bc1257f339d1d5d8b3a19a8cae5388b55320) |
-| v6.0.10 | [`v6.0.10`](https://github.com/chainguard-actions/pnpm-action-setup/tree/v6.0.10) | [`0977fd9`](https://github.com/pnpm/action-setup/commit/0977fd99725f1db4007ccb2928dbb4e90d06cc86) |
-| v6.0.8 | [`v6.0.8`](https://github.com/chainguard-actions/pnpm-action-setup/tree/v6.0.8) | [`0e279bb`](https://github.com/pnpm/action-setup/commit/0e279bb959325dab635dd2c09392533439d90093) |
-| v6.0.9 | [`v6.0.9`](https://github.com/chainguard-actions/pnpm-action-setup/tree/v6.0.9) | [`0ebf471`](https://github.com/pnpm/action-setup/commit/0ebf47130e4866e96fce0953f49152a61190b271) |
-| v6.1.0 | [`v6.1.0`](https://github.com/chainguard-actions/pnpm-action-setup/tree/v6.1.0) | [`ea17c68`](https://github.com/pnpm/action-setup/commit/ea17c68df8912ef543352723c149a84f56e3d413) |
+Version of pnpm to install.
+
+**Optional** when there is a [`packageManager` field in the `package.json`](https://nodejs.org/api/corepack.html).
+
+otherwise, this field is **required** It supports npm versioning scheme, it could be an exact version (such as `6.24.1`), or a version range (such as `6`, `6.x.x`, `6.24.x`, `^6.24.1`, `*`, etc.), or `latest`.
+
+### `dest`
+
+**Optional** Where to store pnpm files.
+
+### `run_install`
+
+**Optional** (_default:_ `null`) If specified, run `pnpm install`.
+
+If `run_install` is either `null` or `false`, pnpm will not install any npm package.
+
+If `run_install` is `true`, pnpm will install dependencies recursively.
+
+If `run_install` is a YAML string representation of either an object or an array, pnpm will execute every install commands.
+
+#### `run_install.recursive`
+
+**Optional** (_type:_ `boolean`, _default:_ `false`) Whether to use `pnpm recursive install`.
+
+#### `run_install.cwd`
+
+**Optional** (_type:_ `string`) Working directory when run `pnpm [recursive] install`.
+
+#### `run_install.args`
+
+**Optional** (_type:_ `string[]`) Additional arguments after `pnpm [recursive] install`, e.g. `[--frozen-lockfile, --strict-peer-dependencies]`.
+
+### `package_json_file`
+
+**Optional** (_type:_ `string`, _default:_ `package.json`) File path to the `package.json` to read "packageManager" configuration.
+
+### `standalone`
+
+**Optional** (_type:_ `boolean`, _default:_ `false`) When set to true, [@pnpm/exe](https://www.npmjs.com/package/@pnpm/exe), which is a Node.js bundled package, will be installed, enabling using `pnpm` without Node.js.
+
+This is useful when you want to use a incompatible pair of Node.js and pnpm.
+
+## Outputs
+
+### `dest`
+
+Expanded path of inputs#dest.
+
+### `bin_dest`
+
+Location of `pnpm` and `pnpx` command.
+
+## Usage example
+
+### Just install pnpm
+
+```yaml
+on:
+  - push
+  - pull_request
+
+jobs:
+  install:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 8
+```
+
+### Install pnpm and a few npm packages
+
+```yaml
+on:
+  - push
+  - pull_request
+
+jobs:
+  install:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 8
+          run_install: |
+            - recursive: true
+              args: [--frozen-lockfile, --strict-peer-dependencies]
+            - args: [--global, gulp, prettier, typescript]
+```
+
+### Use cache to reduce installation time
+
+```yaml
+on:
+  - push
+  - pull_request
+
+jobs:
+  cache-and-install:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
+        with:
+          version: 8
+          run_install: false
+
+      - name: Get pnpm store directory
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+      - uses: actions/cache@v4
+        name: Setup pnpm cache
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install dependencies
+        run: pnpm install
+```
+
+**Note:** You don't need to run `pnpm store prune` at the end; post-action has already taken care of that.
+
+## Notes
+
+This action does not setup Node.js for you, use [actions/setup-node](https://github.com/actions/setup-node) yourself.
+
+## License
+
+[MIT](https://github.com/pnpm/action-setup/blob/master/LICENSE.md) © [Hoàng Văn Khải](https://github.com/KSXGitHub/)
 
 ## Privacy
 
