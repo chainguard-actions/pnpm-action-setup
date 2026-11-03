@@ -17,6 +17,7 @@ Hardened by [Chainguard](https://www.chainguard.dev) from the upstream action at
 | v6.0.8 | [`v6.0.8`](https://github.com/chainguard-actions/pnpm-action-setup/tree/v6.0.8) | [`0e279bb`](https://github.com/pnpm/action-setup/commit/0e279bb959325dab635dd2c09392533439d90093) | [`HARDENING.md`](https://github.com/chainguard-actions/pnpm-action-setup/blob/v6.0.8/HARDENING.md) |
 | v6.0.9 | [`v6.0.9`](https://github.com/chainguard-actions/pnpm-action-setup/tree/v6.0.9) | [`0ebf471`](https://github.com/pnpm/action-setup/commit/0ebf47130e4866e96fce0953f49152a61190b271) | [`HARDENING.md`](https://github.com/chainguard-actions/pnpm-action-setup/blob/v6.0.9/HARDENING.md) |
 | v6.1.0 | [`v6.1.0`](https://github.com/chainguard-actions/pnpm-action-setup/tree/v6.1.0) | [`ea17c68`](https://github.com/pnpm/action-setup/commit/ea17c68df8912ef543352723c149a84f56e3d413) | [`HARDENING.md`](https://github.com/chainguard-actions/pnpm-action-setup/blob/v6.1.0/HARDENING.md) |
+| v6.1.1 | [`v6.1.1`](https://github.com/chainguard-actions/pnpm-action-setup/tree/v6.1.1) | [`73e4699`](https://github.com/pnpm/action-setup/commit/73e46992e05b19abd31f2f3c20e0e7370d762115) | [`HARDENING.md`](https://github.com/chainguard-actions/pnpm-action-setup/blob/v6.1.1/HARDENING.md) |
 
 ## Privacy
 
