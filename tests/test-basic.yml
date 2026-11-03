@@ -1,0 +1,49 @@
+name: Test basic usage with explicit version
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: action
+        uses: .
+        with:
+          version: 9.15.0
+      - name: Assert outputs set
+        env:
+          DEST: ${{ steps.action.outputs.dest }}
+          BIN_DEST: ${{ steps.action.outputs.bin_dest }}
+        run: |
+          echo "dest: $DEST"
+          echo "bin_dest: $BIN_DEST"
+          if [ "$DEST" != "$HOME/setup-pnpm" ]; then
+            echo "FAIL: expected dest '$HOME/setup-pnpm'"
+            exit 1
+          fi
+          case "$BIN_DEST" in
+            "$DEST"/*) ;;
+            *) echo "FAIL: bin_dest not under dest"; exit 1 ;;
+          esac
+          if [ ! -e "$BIN_DEST/pnpm" ]; then
+            echo "FAIL: pnpm not found in bin_dest"
+            exit 1
+          fi
+          echo "PASS"
+      - name: Assert pnpm version
+        env:
+          BIN_DEST: ${{ steps.action.outputs.bin_dest }}
+        run: |
+          V1="$(pnpm --version)"
+          V2="$("$BIN_DEST/pnpm" --version)"
+          echo "PATH pnpm: $V1"
+          echo "bin_dest pnpm: $V2"
+          if [ "$V1" != "9.15.0" ] || [ "$V2" != "9.15.0" ]; then
+            echo "FAIL: expected 9.15.0"
+            exit 1
+          fi
+          if [ -z "$PNPM_HOME" ]; then
+            echo "FAIL: PNPM_HOME not exported"
+            exit 1
+          fi
+          echo "PASS"

@@ -1,0 +1,30 @@
+{
+  "name": "bootstrap-pnpm",
+  "lockfileVersion": 3,
+  "requires": true,
+  "packages": {
+    "": {
+      "dependencies": {
+        "pnpm": "11.28.10"
+      }
+    },
+    "node_modules/pnpm": {
+      "version": "11.28.10",
+      "resolved": "https://registry.npmjs.org/pnpm/-/pnpm-11.28.10.tgz",
+      "integrity": "sha512-ZyIW8G4VwQm4VHHUnT++0X5vA+rSWN8Iwr9bSlwzMh6/v1lHa86BMl762has4Kx4VI/Qv816UTaek5GCo91Q5A==",
+      "license": "MIT",
+      "bin": {
+        "pn": "bin/pnpm.mjs",
+        "pnpm": "bin/pnpm.mjs",
+        "pnpx": "bin/pnpx.mjs",
+        "pnx": "bin/pnpx.mjs"
+      },
+      "engines": {
+        "node": ">=22.13"
+      },
+      "funding": {
+        "url": "https://opencollective.com/pnpm"
+      }
+    }
+  }
+}

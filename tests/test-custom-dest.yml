@@ -1,0 +1,39 @@
+name: Test custom dest
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: action
+        uses: .
+        with:
+          version: 9.15.0
+          dest: ~/custom-pnpm-dest
+      - name: Assert dest expanded and used
+        env:
+          DEST: ${{ steps.action.outputs.dest }}
+          BIN_DEST: ${{ steps.action.outputs.bin_dest }}
+        run: |
+          echo "dest: $DEST"
+          echo "bin_dest: $BIN_DEST"
+          if [ "$DEST" != "$HOME/custom-pnpm-dest" ]; then
+            echo "FAIL: expected '$HOME/custom-pnpm-dest'"
+            exit 1
+          fi
+          if [ ! -d "$DEST/node_modules" ]; then
+            echo "FAIL: node_modules not created in dest"
+            exit 1
+          fi
+          case "$BIN_DEST" in
+            "$DEST"/*) ;;
+            *) echo "FAIL: bin_dest not under dest"; exit 1 ;;
+          esac
+          V="$("$BIN_DEST/pnpm" --version)"
+          echo "version: $V"
+          if [ "$V" != "9.15.0" ]; then
+            echo "FAIL: expected 9.15.0"
+            exit 1
+          fi
+          echo "PASS"
