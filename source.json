@@ -4,8 +4,13 @@
   "version": "v6.0.10",
   "commit_sha": "0977fd99725f1db4007ccb2928dbb4e90d06cc86",
   "url": "https://github.com/pnpm/action-setup",
-  "policy_sha": "d636be7e43ef829af6e853da6b3c7566db9f72fe",
+  "policy_sha": "374911c4be584df24e6da57af2d990570ef0f859",
   "test_policy_sha": "843adf9e4b8f85d0c08b27b9d0b09dd094b54702",
   "test_agent_version": "2",
-  "harden_agent_version": "2"
+  "harden_agent_version": "2",
+  "dist_artifact": {
+    "gcs_uri": "gs://patch-actions-node-artifacts/dist-artifacts/pnpm/action-setup/v6.0.10/sha256-3423053bdd4da7c67d78c3453e9c9475a7f2ebc5c1295f8ecb6c6391e63cc219.tar.gz",
+    "sha256": "3423053bdd4da7c67d78c3453e9c9475a7f2ebc5c1295f8ecb6c6391e63cc219",
+    "size_bytes": 371619
+  }
 }
